@@ -43,3 +43,7 @@ reports/*.csv
 .idea/
 .DS_Store
 Thumbs.db
+
+# python build artifacts
+build/
+*.egg-info/
