@@ -1,0 +1,17 @@
+{
+  "name": "@lighthouse/shared-types",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Canonical entity/edge/enum contracts generated from a single JSON source of truth and shared across the Next.js frontend and FastAPI backend.",
+  "type": "module",
+  "main": "ts/index.ts",
+  "types": "ts/index.ts",
+  "exports": {
+    ".": "./ts/index.ts"
+  },
+  "files": ["ts", "python", "schema"],
+  "scripts": {
+    "generate": "node scripts/generate.mjs",
+    "check": "node scripts/generate.mjs && git diff --exit-code ts python || (echo 'shared-types out of date — run npm run generate' && exit 1)"
+  }
+}

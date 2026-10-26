@@ -1,0 +1,45 @@
+# ---- secrets ----
+.env
+.env.local
+*.pem
+*.key
+
+# ---- node ----
+node_modules/
+.next/
+out/
+.turbo/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+.pnpm-debug.log*
+playwright-report/
+test-results/
+.vitest/
+
+# ---- python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ---- runtime / data ----
+data/
+reports/*.pdf
+reports/*.json
+reports/*.csv
+*.sqlite3
+*.log
+
+# ---- editor / os ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

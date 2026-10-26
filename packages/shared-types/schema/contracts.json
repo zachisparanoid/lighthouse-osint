@@ -1,0 +1,180 @@
+{
+  "$comment": "CANONICAL SOURCE OF TRUTH for Lighthouse cross-language contracts. Edit this file, then run `npm run generate` (or `node scripts/generate.mjs`) to regenerate ts/index.ts and python/lighthouse_shared/__init__.py. Never edit the generated files by hand.",
+  "version": "1.0.0",
+  "enums": {
+    "EntityType": {
+      "doc": "The kinds of nodes that can exist in an investigation graph.",
+      "members": [
+        { "value": "domain",         "label": "Domain",          "color": "#38BDF8", "icon": "Globe",       "mono": true },
+        { "value": "subdomain",      "label": "Subdomain",       "color": "#0EA5E9", "icon": "Network",     "mono": true },
+        { "value": "ip",             "label": "IP Address",      "color": "#A78BFA", "icon": "Server",      "mono": true },
+        { "value": "email",          "label": "Email",           "color": "#F472B6", "icon": "Mail",        "mono": true },
+        { "value": "username",       "label": "Username",        "color": "#34D399", "icon": "AtSign",      "mono": true },
+        { "value": "person",         "label": "Person",          "color": "#FBBF24", "icon": "User",        "mono": false },
+        { "value": "organization",   "label": "Organization",    "color": "#F87171", "icon": "Building2",   "mono": false },
+        { "value": "phone",          "label": "Phone",           "color": "#2DD4BF", "icon": "Phone",       "mono": true },
+        { "value": "url",            "label": "URL",             "color": "#60A5FA", "icon": "Link",        "mono": true },
+        { "value": "asn",            "label": "ASN",             "color": "#C084FC", "icon": "Router",      "mono": true },
+        { "value": "certificate",    "label": "Certificate",     "color": "#4ADE80", "icon": "ShieldCheck", "mono": true },
+        { "value": "social_profile", "label": "Social Profile",  "color": "#F0ABFC", "icon": "Share2",      "mono": false },
+        { "value": "breach",         "label": "Breach",          "color": "#FB7185", "icon": "ShieldAlert", "mono": false },
+        { "value": "file_hash",      "label": "File Hash",       "color": "#94A3B8", "icon": "FileDigit",   "mono": true },
+        { "value": "location",       "label": "Location",        "color": "#FCD34D", "icon": "MapPin",      "mono": false }
+      ]
+    },
+    "RelationshipType": {
+      "doc": "The kinds of directed edges between entities.",
+      "members": [
+        { "value": "resolves_to",      "label": "resolves to" },
+        { "value": "hosts",            "label": "hosts" },
+        { "value": "registered_by",    "label": "registered by" },
+        { "value": "subdomain_of",     "label": "subdomain of" },
+        { "value": "member_of",        "label": "member of" },
+        { "value": "owns",             "label": "owns" },
+        { "value": "breached_in",      "label": "breached in" },
+        { "value": "mentions",         "label": "mentions" },
+        { "value": "same_as",          "label": "same as" },
+        { "value": "located_in",       "label": "located in" },
+        { "value": "uses_certificate", "label": "uses certificate" },
+        { "value": "references",       "label": "references" }
+      ]
+    },
+    "Role": {
+      "doc": "System-wide RBAC roles, ordered least to most privileged inside cases via case_role.",
+      "members": [
+        { "value": "viewer",  "label": "Viewer" },
+        { "value": "analyst", "label": "Analyst" },
+        { "value": "admin",   "label": "Admin" }
+      ]
+    },
+    "CaseStatus": {
+      "doc": "Lifecycle status of an investigation case.",
+      "members": [
+        { "value": "active",   "label": "Active" },
+        { "value": "archived", "label": "Archived" }
+      ]
+    },
+    "JobStatus": {
+      "doc": "Lifecycle status of a collection job.",
+      "members": [
+        { "value": "queued",    "label": "Queued" },
+        { "value": "running",   "label": "Running" },
+        { "value": "succeeded", "label": "Succeeded" },
+        { "value": "failed",    "label": "Failed" },
+        { "value": "skipped",   "label": "Skipped" }
+      ]
+    },
+    "CollectorCost": {
+      "doc": "Whether a collector hits only free public sources or requires a user-supplied API key.",
+      "members": [
+        { "value": "free",  "label": "Free" },
+        { "value": "keyed", "label": "Requires key" }
+      ]
+    },
+    "KeyService": {
+      "doc": "External services for which an analyst may store a BYOK API key.",
+      "members": [
+        { "value": "shodan",         "label": "Shodan" },
+        { "value": "hibp",           "label": "Have I Been Pwned" },
+        { "value": "opencorporates", "label": "OpenCorporates" }
+      ]
+    }
+  },
+  "interfaces": {
+    "Provenance": {
+      "doc": "A citation: where a piece of data came from. Every entity and edge must have at least one.",
+      "fields": [
+        { "name": "id",            "type": "string" },
+        { "name": "collector_name","type": "string" },
+        { "name": "source_url",    "type": "string", "optional": true },
+        { "name": "raw_excerpt",   "type": "Json",   "optional": true },
+        { "name": "retrieved_at",  "type": "string" },
+        { "name": "license_note",  "type": "string", "optional": true }
+      ]
+    },
+    "Entity": {
+      "doc": "A node in the investigation graph.",
+      "fields": [
+        { "name": "id",           "type": "string" },
+        { "name": "case_id",      "type": "string" },
+        { "name": "type",         "type": "EntityType" },
+        { "name": "value",        "type": "string" },
+        { "name": "label",        "type": "string" },
+        { "name": "attributes",   "type": "Json" },
+        { "name": "first_seen",   "type": "string", "optional": true },
+        { "name": "last_seen",    "type": "string", "optional": true },
+        { "name": "confidence",   "type": "number" },
+        { "name": "source_count", "type": "number" },
+        { "name": "tags",         "type": "string[]" },
+        { "name": "conflicting",  "type": "boolean" },
+        { "name": "created_at",   "type": "string" },
+        { "name": "updated_at",   "type": "string" }
+      ]
+    },
+    "Edge": {
+      "doc": "A directed, cited relationship between two entities.",
+      "fields": [
+        { "name": "id",               "type": "string" },
+        { "name": "case_id",          "type": "string" },
+        { "name": "source_entity_id", "type": "string" },
+        { "name": "target_entity_id", "type": "string" },
+        { "name": "relationship",     "type": "RelationshipType" },
+        { "name": "confidence",       "type": "number" },
+        { "name": "attributes",       "type": "Json" }
+      ]
+    },
+    "Job": {
+      "doc": "An async collection job tracked end to end.",
+      "fields": [
+        { "name": "id",               "type": "string" },
+        { "name": "case_id",          "type": "string" },
+        { "name": "collector_name",   "type": "string" },
+        { "name": "target_entity_id", "type": "string", "optional": true },
+        { "name": "status",           "type": "JobStatus" },
+        { "name": "progress",         "type": "number" },
+        { "name": "result_summary",   "type": "Json",   "optional": true },
+        { "name": "error",            "type": "string", "optional": true },
+        { "name": "created_at",       "type": "string" },
+        { "name": "started_at",       "type": "string", "optional": true },
+        { "name": "finished_at",      "type": "string", "optional": true }
+      ]
+    },
+    "CollectorInfo": {
+      "doc": "Capability metadata for a collector, surfaced so the UI can render run options dynamically.",
+      "fields": [
+        { "name": "name",         "type": "string" },
+        { "name": "title",        "type": "string" },
+        { "name": "description",  "type": "string" },
+        { "name": "accepts",      "type": "EntityType[]" },
+        { "name": "produces",     "type": "EntityType[]" },
+        { "name": "cost",         "type": "CollectorCost" },
+        { "name": "requires_key", "type": "KeyService", "optional": true },
+        { "name": "key_present",  "type": "boolean" },
+        { "name": "enabled",      "type": "boolean" },
+        { "name": "rate_limit",   "type": "string" },
+        { "name": "source_note",  "type": "string" }
+      ]
+    }
+  },
+  "palette": {
+    "doc": "Shared UI color tokens so frontend Tailwind config and any server-rendered output stay in lockstep.",
+    "tokens": {
+      "bg": "#0B0F14",
+      "surface": "#121821",
+      "surfaceRaised": "#1A2230",
+      "border": "#243042",
+      "text": "#E6EDF3",
+      "textMuted": "#8B98A9",
+      "accent": "#3B82F6",
+      "success": "#22C55E",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    }
+  },
+  "constants": {
+    "CONFIDENCE_MIN": 0,
+    "CONFIDENCE_MAX": 100,
+    "DEFAULT_AUTOEXPAND_DEPTH": 2,
+    "DEFAULT_NODE_BUDGET": 250
+  }
+}

@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lighthouse-shared"
+version = "1.0.0"
+description = "Generated shared enums/contracts for Lighthouse (entity/edge/job types, palette)."
+requires-python = ">=3.10"
+dependencies = [
+  "typing_extensions>=4.0; python_version < '3.11'",
+]
+
+[tool.setuptools]
+packages = ["lighthouse_shared"]

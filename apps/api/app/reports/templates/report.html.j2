@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ title }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 22mm 18mm 20mm 18mm;
+    @bottom-left {
+      content: "CONFIDENTIAL — {{ case.name }}";
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #6b7280;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      font-size: 7.5pt;
+      color: #6b7280;
+    }
+  }
+  @page :first {
+    @bottom-left { content: ""; }
+  }
+
+  :root {
+    --ink: #0f1722;
+    --ink-soft: #33414f;
+    --muted: #6b7280;
+    --line: #d6dce4;
+    --line-soft: #e8ecf1;
+    --accent: {{ palette.accent }};
+    --danger: {{ palette.danger }};
+    --warning: {{ palette.warning }};
+    --success: {{ palette.success }};
+    --surface: #f6f8fa;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    color: var(--ink);
+    background: #ffffff;
+    font-family: "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.45;
+  }
+
+  h1, h2, h3 { font-weight: 700; color: var(--ink); margin: 0; }
+  h1 { font-size: 24pt; letter-spacing: -0.01em; }
+  h2 {
+    font-size: 13pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+  }
+  h3 { font-size: 11pt; color: var(--ink-soft); margin-bottom: 6px; }
+  p { margin: 0 0 8px 0; }
+  a { color: var(--accent); text-decoration: none; word-break: break-all; }
+
+  .mono {
+    font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+    font-size: 9pt;
+  }
+  .muted { color: var(--muted); }
+  .small { font-size: 8.5pt; }
+
+  /* ---------- cover ---------- */
+  .cover {
+    page-break-after: always;
+    padding-top: 8mm;
+  }
+  .cover .eyebrow {
+    font-size: 9pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .cover h1 { margin-bottom: 6px; }
+  .cover .case-name {
+    font-size: 13pt;
+    color: var(--ink-soft);
+    margin-bottom: 28px;
+  }
+  .meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 28px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 0;
+    margin-bottom: 22px;
+  }
+  .meta-grid .k {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .meta-grid .v { font-size: 10pt; color: var(--ink); }
+
+  .legal-box {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .legal-box .k {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .notice {
+    font-size: 8pt;
+    color: var(--ink-soft);
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-left: 4px solid var(--warning);
+    padding: 10px 12px;
+  }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 22px; }
+  .section-break { page-break-before: auto; }
+
+  /* ---------- stat cards ---------- */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 12px 0 16px 0;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 10px 12px;
+    background: var(--surface);
+  }
+  .stat .n { font-size: 18pt; font-weight: 700; color: var(--ink); }
+  .stat .l {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  /* ---------- chips ---------- */
+  .chip {
+    display: inline-block;
+    font-size: 7.5pt;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 9px;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .chip-soft {
+    display: inline-block;
+    font-size: 7.5pt;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--line-soft);
+    color: var(--ink-soft);
+    margin-right: 3px;
+  }
+  .chip-conflict {
+    background: var(--danger);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  /* ---------- tables ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+  }
+  th {
+    text-align: left;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border-bottom: 1.5px solid var(--line);
+    padding: 5px 6px;
+  }
+  td {
+    padding: 5px 6px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  tr { page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .conf-bar-wrap {
+    display: inline-block;
+    width: 42px;
+    height: 6px;
+    background: var(--line-soft);
+    border-radius: 3px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 5px;
+  }
+  .conf-bar { height: 6px; background: var(--accent); }
+
+  .type-head {
+    background: var(--surface);
+    font-weight: 700;
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ---------- findings ---------- */
+  .finding {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    page-break-inside: avoid;
+  }
+  .finding.conflict { border-left: 4px solid var(--danger); }
+  .finding .head { display: flex; justify-content: space-between; align-items: baseline; }
+  .finding .title { font-weight: 700; font-size: 9.5pt; }
+  .finding .cites { margin-top: 4px; }
+
+  /* ---------- graph ---------- */
+  .graph-img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .placeholder {
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ---------- provenance appendix ---------- */
+  .prov-block { page-break-inside: avoid; margin-bottom: 10px; }
+  .prov-subject {
+    font-size: 9pt;
+    font-weight: 700;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 3px;
+    margin-bottom: 4px;
+  }
+  .prov-source {
+    font-size: 8pt;
+    padding: 3px 0 3px 10px;
+    border-left: 2px solid var(--line-soft);
+    margin-bottom: 3px;
+  }
+  .prov-source .collector { font-weight: 600; color: var(--ink-soft); }
+  .uncited { color: var(--danger); font-weight: 600; font-size: 8pt; }
+
+  /* ---------- timeline ---------- */
+  .tl-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--line-soft);
+    page-break-inside: avoid;
+  }
+  .tl-when { font-weight: 600; font-size: 8.5pt; color: var(--ink-soft); }
+  .tl-what { font-size: 8.5pt; }
+
+  footer.report-end {
+    margin-top: 26px;
+    border-top: 1px solid var(--line);
+    padding-top: 8px;
+    font-size: 7.5pt;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+{# ============================ COVER ============================ #}
+<div class="cover">
+  <div class="eyebrow">Lighthouse · OSINT Intelligence Report</div>
+  <h1>{{ title }}</h1>
+  <div class="case-name">{{ case.name }}</div>
+
+  <div class="meta-grid">
+    <div>
+      <div class="k">Case</div>
+      <div class="v">{{ case.name }}</div>
+    </div>
+    <div>
+      <div class="k">Generated</div>
+      <div class="v mono">{{ generated_at }}</div>
+    </div>
+    <div>
+      <div class="k">Status</div>
+      <div class="v">{{ case.status or "—" }}</div>
+    </div>
+    <div>
+      <div class="k">Scope</div>
+      <div class="v">{{ stats.entity_total }} entities · {{ stats.edge_total }} relationships · {{ stats.source_total }} sources</div>
+    </div>
+  </div>
+
+  <div class="legal-box">
+    <div class="k">Legal Basis / Authorization</div>
+    <div class="v">{{ case.legal_basis or "No legal basis recorded." }}</div>
+  </div>
+
+  <div class="notice">{{ confidentiality_notice }}</div>
+</div>
+
+{# ============================ SUMMARY ============================ #}
+{% if "summary" in sections %}
+<section>
+  <h2>Executive Summary</h2>
+  {% if case.description %}
+    <p>{{ case.description }}</p>
+  {% else %}
+    <p class="muted">No case description provided.</p>
+  {% endif %}
+
+  <div class="stat-row">
+    <div class="stat"><div class="n">{{ stats.entity_total }}</div><div class="l">Entities</div></div>
+    <div class="stat"><div class="n">{{ stats.edge_total }}</div><div class="l">Relationships</div></div>
+    <div class="stat"><div class="n">{{ stats.source_total }}</div><div class="l">Distinct Sources</div></div>
+    <div class="stat"><div class="n">{{ stats.conflict_total }}</div><div class="l">Conflicts Flagged</div></div>
+  </div>
+
+  {% if stats.counts_by_type %}
+  <h3>Entities by Type</h3>
+  <table>
+    <thead><tr><th>Type</th><th class="num">Count</th></tr></thead>
+    <tbody>
+      {% for row in stats.counts_by_type %}
+      <tr>
+        <td><span class="chip" style="background: {{ row.color }};">{{ row.label }}</span></td>
+        <td class="num">{{ row.count }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ============================ INVENTORY ============================ #}
+{% if "inventory" in sections %}
+<section>
+  <h2>Entity Inventory</h2>
+  {% if inventory %}
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th><th>Value</th><th>Label</th>
+        <th class="num">Confidence</th><th class="num">Sources</th><th>First Seen</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% set ns = namespace(current="") %}
+      {% for e in inventory %}
+        {% if e.type != ns.current %}
+          {% set ns.current = e.type %}
+          <tr class="type-head"><td colspan="6">{{ e.type_label }}</td></tr>
+        {% endif %}
+        <tr>
+          <td><span class="chip" style="background: {{ e.type_color }};">{{ e.type_label }}</span></td>
+          <td class="mono">{{ e.value }}</td>
+          <td>
+            {{ e.label }}
+            {% if e.conflicting %}<span class="chip chip-conflict">CONFLICT</span>{% endif %}
+            {% for t in e.tags %}<span class="chip-soft">{{ t }}</span>{% endfor %}
+          </td>
+          <td class="num">
+            <span class="conf-bar-wrap"><span class="conf-bar" style="width: {{ e.confidence }}%;"></span></span>{{ e.confidence }}
+          </td>
+          <td class="num">{{ e.source_count }}</td>
+          <td class="mono small">{{ (e.first_seen | string)[:10] if e.first_seen else "—" }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No entities matched the selected criteria.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ============================ FINDINGS ============================ #}
+{% if "findings" in sections %}
+<section>
+  <h2>Key Findings</h2>
+
+  {% if conflicts %}
+  <h3 style="color: {{ palette.danger }};">Conflicting Data ({{ conflicts | length }})</h3>
+  <p class="small muted">Independent sources disagree on the following entities. Treat as unverified pending resolution.</p>
+  {% for e in conflicts %}
+  <div class="finding conflict">
+    <div class="head">
+      <span class="title">{{ e.label }}</span>
+      <span><span class="chip" style="background: {{ e.type_color }};">{{ e.type_label }}</span></span>
+    </div>
+    <div class="mono small">{{ e.value }}</div>
+    <div class="cites small muted">
+      {% if e.provenance %}
+        Cited by {{ e.provenance | length }} source(s):
+        {% for p in e.provenance %}{{ p.collector_name }}{% if not loop.last %}, {% endif %}{% endfor %}
+      {% else %}
+        <span class="uncited">UNCITED — no provenance on record.</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <h3>Highest-Confidence Entities</h3>
+  {% if top_findings %}
+  {% for e in top_findings %}
+  <div class="finding{% if e.conflicting %} conflict{% endif %}">
+    <div class="head">
+      <span class="title">{{ e.label }}</span>
+      <span class="muted small">confidence {{ e.confidence }} · {{ e.source_count }} source(s)</span>
+    </div>
+    <div class="mono small">
+      <span class="chip" style="background: {{ e.type_color }};">{{ e.type_label }}</span> {{ e.value }}
+      {% if e.conflicting %}<span class="chip chip-conflict">CONFLICT</span>{% endif %}
+    </div>
+    <div class="cites small muted">
+      {% if e.provenance %}
+        {% for p in e.provenance %}
+          {{ p.collector_name }}{% if p.source_url %} (<a href="{{ p.source_url }}">{{ p.source_url }}</a>){% endif %}{% if not loop.last %}; {% endif %}
+        {% endfor %}
+      {% else %}
+        <span class="uncited">UNCITED — no provenance on record.</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="muted">No findings to report.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ============================ GRAPH ============================ #}
+{% if "graph" in sections %}
+<section>
+  <h2>Relationship Graph</h2>
+  {% if graph_snapshot %}
+    <img class="graph-img" src="data:image/png;base64,{{ graph_snapshot }}" alt="Investigation graph snapshot">
+  {% else %}
+    <div class="placeholder">No graph snapshot captured.</div>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ============================ TIMELINE ============================ #}
+{% if "timeline" in sections %}
+<section>
+  <h2>Timeline</h2>
+  {% if timeline %}
+    {% for ev in timeline %}
+    <div class="tl-item">
+      <div class="tl-when mono">{{ (ev.when | string)[:10] }}</div>
+      <div class="tl-what">
+        <strong>{{ ev.detail }}</strong> — {{ ev.entity_label }}
+        <span class="chip-soft">{{ ev.type_label }}</span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="muted">No dated events available for a timeline.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ============================ PROVENANCE APPENDIX ============================ #}
+{% if "provenance" in sections %}
+<section>
+  <h2>Provenance Appendix</h2>
+  <p class="small muted">{{ citations_note }}</p>
+
+  <h3>Entity Sources</h3>
+  {% for e in entities %}
+  <div class="prov-block">
+    <div class="prov-subject">
+      <span class="chip" style="background: {{ e.type_color }};">{{ e.type_label }}</span>
+      {{ e.label }} <span class="mono muted small">{{ e.value }}</span>
+    </div>
+    {% if e.provenance %}
+      {% for p in e.provenance %}
+      <div class="prov-source">
+        <span class="collector">{{ p.collector_name }}</span>
+        {% if p.source_url %}— <a href="{{ p.source_url }}">{{ p.source_url }}</a>{% else %}<span class="muted">— (no source URL)</span>{% endif %}
+        <span class="muted">· retrieved {{ (p.retrieved_at | string)[:19] if p.retrieved_at else "unknown" }}</span>
+        {% if p.license_note %}<span class="muted small"> · {{ p.license_note }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prov-source uncited">UNCITED — this entity has no recorded source. Do not rely on it.</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  {% if edges %}
+  <h3>Relationship Sources</h3>
+  {% for ed in edges %}
+  <div class="prov-block">
+    <div class="prov-subject">
+      {{ ed.source_label }} <span class="muted">{{ ed.relationship_label }}</span> {{ ed.target_label }}
+    </div>
+    {% if ed.provenance %}
+      {% for p in ed.provenance %}
+      <div class="prov-source">
+        <span class="collector">{{ p.collector_name }}</span>
+        {% if p.source_url %}— <a href="{{ p.source_url }}">{{ p.source_url }}</a>{% else %}<span class="muted">— (no source URL)</span>{% endif %}
+        <span class="muted">· retrieved {{ (p.retrieved_at | string)[:19] if p.retrieved_at else "unknown" }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="prov-source uncited">UNCITED — this relationship has no recorded source.</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+</section>
+{% endif %}
+
+<footer class="report-end">
+  Generated by Lighthouse OSINT · {{ generated_at }} · {{ stats.citation_total }} citations across {{ stats.entity_total }} entities and {{ stats.edge_total }} relationships.
+</footer>
+
+</body>
+</html>

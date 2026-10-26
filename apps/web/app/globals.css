@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS variables mirror the Tailwind palette so canvas/JS (Cytoscape, Recharts) can read them. */
+:root {
+  --bg: #0b0f14;
+  --surface: #121821;
+  --raised: #1a2230;
+  --border: #243042;
+  --text: #e6edf3;
+  --muted: #8b98a9;
+  --accent: #3b82f6;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --entity-domain: #38bdf8;
+  --entity-subdomain: #0ea5e9;
+  --entity-ip: #a78bfa;
+  --entity-email: #f472b6;
+  --entity-username: #34d399;
+  --entity-person: #fbbf24;
+  --entity-organization: #f87171;
+  --entity-phone: #2dd4bf;
+  --entity-url: #60a5fa;
+  --entity-asn: #c084fc;
+  --entity-certificate: #4ade80;
+  --entity-social_profile: #f0abfc;
+  --entity-breach: #fb7185;
+  --entity-file_hash: #94a3b8;
+  --entity-location: #fcd34d;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+    /* Subtle depth: a faint radial wash from the top so the console feels lit, not flat. */
+    background-image: radial-gradient(
+        1200px 600px at 50% -10%,
+        rgba(59, 130, 246, 0.06),
+        transparent 60%
+      ),
+      radial-gradient(800px 400px at 100% 0%, rgba(167, 139, 250, 0.04), transparent 55%);
+    background-attachment: fixed;
+  }
+  ::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: #fff;
+  }
+  /* Thin, dark scrollbars befitting a console. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #243042;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #344256;
+    background-clip: content-box;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #243042 transparent;
+  }
+}
+
+@layer components {
+  .mono {
+    @apply font-mono;
+    font-feature-settings: "ss01", "zero";
+  }
+  /* Hairline separators between dense console rows. */
+  .hairline {
+    @apply border-border;
+  }
+  /* Skeleton shimmer. */
+  .skeleton {
+    @apply relative overflow-hidden bg-raised/60 rounded-md;
+  }
+  .skeleton::after {
+    content: "";
+    @apply absolute inset-0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+    animation: shimmer 1.4s infinite;
+  }
+}
+
+/* Respect reduced-motion: kill non-essential animation/transition. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

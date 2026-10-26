@@ -1,0 +1,23 @@
+# Keep build contexts lean and secrets out of images.
+.git
+.gitignore
+**/node_modules
+**/.next
+**/out
+**/dist
+**/__pycache__
+**/*.py[cod]
+**/.venv
+**/venv
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+**/htmlcov
+**/.coverage
+**/playwright-report
+**/test-results
+**/.turbo
+**/*.log
+.env
+.env.local
+README.md

@@ -1,0 +1,11 @@
+-r requirements.txt
+
+# ---- Testing ----
+pytest>=8.1
+pytest-asyncio>=0.23
+respx>=0.21
+fakeredis>=2.21
+freezegun>=1.4
+
+# ---- Lint / format ----
+ruff>=0.4
